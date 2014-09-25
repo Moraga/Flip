@@ -364,7 +364,10 @@
 			// mousewheel detached for compatibility
 			function mousewheel(event) {
 				move(function() {
-					if (('|'+ self.page.slide_trigger +'|').indexOf('|mousewheel|') == -1)
+					// checks whether the current page has mousewheel enabled
+					if (('|'+ self.page.slide_trigger +'|').indexOf('|mousewheel|') == -1 ||
+							// and target element is not scrollable
+							event.target.getAttribute('data-scrollable') || $(event.target).parents('[data-scrollable]').length)
 						return;
 					
 					// up
