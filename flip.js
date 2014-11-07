@@ -29,13 +29,25 @@
 	
 	Flip.prototype = {
 		/**
+		 * Starts from this page
+		 * @var int
+		 */
+		start: 0,
+		
+		/**
+		 * Navigates page by page
+		 * @var bool
+		 */
+		singly: true,
+		
+		/**
 		 * Shared data
 		 * @var Object
 		 */
 		data: {},
 		
 		/**
-		 * Registered keys and events
+		 * Registered keys and actions
 		 * @var Object
 		 */
 		keys: {
@@ -123,7 +135,8 @@
 			
 			this.dom = $(this.dom);
 			
-			composite(this, Flip);
+			// set all compositions
+			Tools.composite(this, Flip);
 		},
 		
 		/**
@@ -223,7 +236,8 @@
 		
 		/**
 		 * Marks the current page
-		 * @return string Returns the marker
+		 * @param string marker Optional marker
+		 * @return string The marker
 		 */
 		mark: function(marker) {
 			this.trigger('mark', [marker = location.hash = marker || this.page.mask || this.page.marker.toString().slice(2, -2).replace(/\\/g, '')]);
@@ -300,20 +314,30 @@
 			// marks the page
 			this.mark();
 			
-			// transition effect
-			this.dom.animate({
-				top: n * this.height * -1
-			}, direct ? 0 : next.slide_duration, function() {
-				// global page reference
-				window.page = next;
-				
-				next.flip.trigger('flip', [next, prev]);
-				
-				if (prev)
-					prev.trigger('leave');
-				
-				next.trigger('enter');
-			});
+			var move = [
+				null, // dom element
+				null, // anim properties
+				direct ? 0 : next.slide_duration,
+				function() {
+					// global page reference
+					window.page = next;
+					next.flip.trigger('flip', [next, prev]);
+					if (prev)
+						prev.trigger('leave');
+					next.trigger('enter');
+				}
+			];
+			
+			if (this.singly) {
+				move[0] = this.dom;
+				move[1] = {top: n * this.height * -1};
+			}
+			else {
+				move[0] = $('html,body');
+				move[1] = {scrollTop: this.page.dom.offset().top - this.dom.parent().offset().top};
+			}
+			
+			Function.call.apply(move[0].animate, move);
 			
 			return true;
 		},
@@ -325,7 +349,7 @@
 		init: function() {
 			var self = this,
 				marker = this.marker(),
-				start = 0,
+				start = this.start,
 				move = function(func) {
 					if (move.locked == false) {
 						move.locked = true;
@@ -350,7 +374,7 @@
 				// parse tag attributes
 				for (var j=0; j < this.attributes.length; j++)
 					if (this.attributes[j].name.substr(0, 5) == 'data-')
-						attr.map(page, this.attributes[j].name
+						Tools.attr.map(page, this.attributes[j].name
 							.substr(5).replace(/\-/g, '_'), this.attributes[j].value);
 				
 				// add to flip
@@ -360,88 +384,114 @@
 				if ((marker && page.match(marker)) || page.start)
 					start = page;
 			});
-			
-			// mousewheel detached for compatibility
-			function mousewheel(event) {
-				move(function() {
-					// checks whether the current page has mousewheel enabled
-					if (('|'+ self.page.slide_trigger +'|').indexOf('|mousewheel|') == -1 ||
-							// and target element is not scrollable
-							event.target.getAttribute('data-scrollable') || $(event.target).parents('[data-scrollable]').length)
-						return;
-					
-					// up
-					if (
-						// ie, opera, safari
-						typeof event.originalEvent.wheelDelta != 'undefined' && event.originalEvent.wheelDelta >= 0 ||
-						// firefox
-						typeof event.originalEvent.detail != 'undefined' && event.originalEvent.detail < 0) {
-						self.prev();
-					}
-					// down
-					else {
-						self.next();
-					}
-				});
-			}
-			
-			// bind main events
-			$(window).on({
-				resize: function() {
-					// update size
-					self.width = self.dom.width();
-					self.height = self.dom.height();
-					
-					// update width and height of each page
-					self.each(function() {
-						this.dom.css('height', self.height);
-					});
-					
-					if (self.page) {
-						// update container top
-						self.dom.css('top', page.position() * self.height * -1);
-						// trigger resize
-						self.page.onresize();
-					}
-				},
-				
-				keyup: function() {
+
+			// singly mode
+			if (this.singly) {
+				// mousewheel detached for compatibility
+				function mousewheel(event) {
 					move(function() {
-						var	key = self.keys[event.which || event.keyCode] || null;
-						if (key && ('|' + self.page.slide_trigger + '|').indexOf(key[0]) > -1)
-							self[key[1]]();
-					});
-				},
-				
-				mousewheel: mousewheel,
-				DOMMouseScroll: mousewheel,
-				
-				touchstart: function(event) {
-					touch.start = event.originalEvent.touches[0].pageY;
-				},
-				
-				touchmove: function(event) {
-					move(function() {
-						touch.end = event.originalEvent.touches[0].pageY;
-						
-						// minimum distance
-						if (Math.abs(touch.end - touch.start) < 10)
+						// checks whether the current page has mousewheel enable
+						if (('|'+ self.page.slide_trigger +'|').indexOf('|mousewheel|') == -1 ||
+								// and target element is not scrollable
+								event.target.getAttribute('data-scrollable') || $(event.target).parents('[data-scrollable]').length)
 							return;
 						
-						self[touch.start > touch.end ? 'prev' : 'next']();
+						// up
+						if (
+							// ie, opera, safari
+							typeof event.originalEvent.wheelDelta != 'undefined' && event.originalEvent.wheelDelta >= 0 ||
+							// firefox
+							typeof event.originalEvent.detail != 'undefined' && event.originalEvent.detail < 0) {
+							self.prev();
+						}
+						// down
+						else {
+							self.next();
+						}
 					});
-				},
-				
-				orientationchange: function(event) {
-					$(window).resize();
 				}
-			})
-			// trigger resize
-			.resize();
+				
+				// bind main events
+				$(window).on({
+					resize: function() {
+						// update size
+						self.width = self.dom.width();
+						self.height = self.dom.height();
+						
+						// update width and height of each page
+						self.each(function() {
+							this.dom.css('height', self.height);
+						});
+						
+						if (self.page) {
+							// update container top
+							self.dom.css('top', page.position() * self.height * -1);
+							// trigger resize
+							self.page.onresize();
+						}
+					},
+					
+					keyup: function() {
+						move(function() {
+							var	key = self.keys[event.which || event.keyCode] || null;
+							if (key && ('|' + self.page.slide_trigger + '|').indexOf(key[0]) > -1)
+								self[key[1]]();
+						});
+					},
+					
+					mousewheel: mousewheel,
+					DOMMouseScroll: mousewheel,
+					
+					touchstart: function(event) {
+						touch.start = event.originalEvent.touches[0].pageY;
+					},
+					
+					touchmove: function(event) {
+						move(function() {
+							touch.end = event.originalEvent.touches[0].pageY;
+							
+							// minimum distance
+							if (Math.abs(touch.end - touch.start) < 10)
+								return;
+							
+							self[touch.start > touch.end ? 'prev' : 'next']();
+						});
+					},
+					
+					orientationchange: function(event) {
+						$(window).resize();
+					}
+				})
+				// trigger resize
+				.resize();
+			}
+			// normal mode
+			else {
+				$(window).on({
+					resize: function() {
+						// update size
+						self.width = self.dom.width();
+						self.height = $(document).height();
+					},
+					scroll: function(event, move) {
+						for (var m=window.pageYOffset + (document.documentElement || document).clientHeight / 2, i=self.pages.length, page; i--;)
+							if (m >= (page = self.pages[i]).dom.offset().top)
+								break;
+						
+						// still
+						if (page == self.page)
+							return;
+						
+						self.goto(page, true, move === true);
+					}
+				})
+				.resize()
+				.trigger('scroll', [true]);
+			}
 			
 			this.trigger('init');
 			
-			// start from page
+			// starts from page X
 			this.goto(start, true);
 			
 			return this;
@@ -476,13 +526,13 @@
 		load: false,
 		
 		/**
-		 * Loads previous page
+		 * Autoload the previous page
 		 * @var bool
 		 */
 		load_prev: false,
 		
 		/**
-		 * Loads next page
+		 * Autoload the next page
 		 * @var bool
 		 */
 		load_next: false,
@@ -579,13 +629,13 @@
 		refresh: 0,
 		
 		/**
-		 * Refresh interval control
+		 * Refresh control
 		 * @var int
 		 */
 		refresh_timer: null,
 		
 		/**
-		 * Hidden refresh
+		 * Updates the content independent to be visible
 		 * @var bool
 		 */
 		refresh_hidden: false,
@@ -648,6 +698,12 @@
 		wait: false,
 		
 		/**
+		 * Counter of actions required before initializes the page
+		 * @var number
+		 */
+		required: 0,
+		
+		/**
 		 * Page DOM element
 		 * @var object
 		 */
@@ -664,7 +720,7 @@
 		 * @return void
 		 */
 		construct: function() {
-			composite(this, Page);
+			Tools.composite(this, Page);
 		},
 		
 		/**
@@ -677,7 +733,7 @@
 		},
 		
 		/**
-		 * Gets the page position
+		 * Finds the page position
 		 * @return int The position or -1
 		 */
 		position: function() {
@@ -688,7 +744,7 @@
 		},
 		
 		/**
-		 * Go to previous page
+		 * Go to the previous page
 		 * @return bool TRUE on success, FALSE on failure
 		 */
 		prev: function() {
@@ -696,15 +752,15 @@
 		},
 		
 		/**
-		 * Go to next page
-		 * @return bool TRUE on success, FALSE on failure
+		 * Go to the next page
+		 * @return bool
 		 */
 		next: function() {
 			return this.flip.goto(this.position() + 1);
 		},
 		
 		/**
-		 * Checks whether page marker matches the marker given
+		 * Checks whether the page marker matches the marker given
 		 * @return bool
 		 */
 		match: function(marker) {
@@ -713,6 +769,7 @@
 		
 		/**
 		 * Checks whether page has a component
+		 * @param string component Component's name
 		 * @return bool
 		 */
 		has: function(component) {
@@ -731,7 +788,7 @@
 		 * Mounts the page
 		 * @param mixed data Page data
 		 * @param string template Page template
-		 * @return void
+		 * @return bool
 		 */
 		mount: function(data, template) {
 			// set data
@@ -742,31 +799,32 @@
 			if (template)
 				this.template = template;
 			
-			// waiting
-			if (this.url && !this.data || this.tpl && !this.template)
-				return;
+			if (this.required > 0)
+				return false;
 			
 			this.dom.html(
 				this.template ?
 					// with template
-					flip.render(this.template, this.data) :
+					Tools.render(this.template, this.data) :
 					// without template
 					(typeof this.data == 'object' ? this.data.content : this.data)
 			);
 			
-			//console.log('mount', this.id);
-			
-			if (this.wait == false)
+			if (!this.wait)
 				this.loaded = true;
 			
 			this.preload();
 			this.trigger('load');
 			this.trigger('init');
+			
+			return true;
 		},
 		
+		/**
+		 * Preload implementation
+		 * @return void
+		 */
 		preload: function() {
-			//console.log('preload', this.id);
-			
 			var self = this;
 			
 			// attach general events
@@ -781,7 +839,7 @@
 		
 		/**
 		 * Clones the page
-		 * @return Page The page cloned
+		 * @return Page The new page
 		 */
 		clone: function() {
 			var page = $.extend(true, {}, this);
@@ -790,43 +848,62 @@
 		},
 		
 		/**
-		 * Fetch page content
-		 * @param string 
+		 * Fetchs a page content
+		 * @param string Content url
+		 * @param function callback Callback function
+		 * @return void
 		 */
-		fetch: function(dir) {
-			// javascript
-			if (this[dir].match(/\.js\b/)) {
-				var self = this,
-					prev = window.page || undefined;
+		fetch: function(url, callback) {
+			var self = this;
+			
+			if (typeof callback != 'function')
+				callback = function() {};
+			
+			// loads js by require
+			if (url.match(/\.js\b/)) {
+				var prev = window.page || undefined;
 				
+				// updates global page reference
 				window.page = this;
 				
-				require([this[dir] + '?x=1'], function() {
-					// user mount
-					if (self.wait)
-						self.wait = false;
-					else
+				require([url], function() {
+					callback.call(self);
+					
+					// user mounts the page
+					if (!self.wait)
 						self.mount();
 					
 					if (window.page.index == false)
 						window.page = prev;
 				});
 			}
-			// html, json
+			// otherwise by jQuery
 			else {
 				$.ajax({
-					url: this[dir],
+					url: url,
 					cache: this.cache,
-					context: this,
 					success: function(data) {
-						this.mount(null, data);
+						callback.call(self);
+						self.mount(null, data);
 					}
 				});
 			}
 		},
 		
 		/**
-		 * Call a page
+		 * Requires a content before set the page as loaded
+		 * @param string url Content url
+		 * @return void
+		 */
+		require: function(url) {
+			this.required++;
+			this.fetch(url, function() {
+				this.required--;
+			});
+		},
+		
+		/**
+		 * Calls a page
 		 * @param mixed page A page name, id or object
 		 * @param string from Direction
 		 * @return void
@@ -847,6 +924,7 @@
 				},
 				i = 0;
 			
+			// direction as array
 			from = typeof from == 'undefined' ? ['left'] : from.match(/top|bottom|right|left/g);
 			
 			for (; i < from.length; i++) {
@@ -865,11 +943,9 @@
 			
 			page.one('init.call', function() {
 				cale = page.clone();
-				
 				cale.dom
 					.css(styl.cur).appendTo(cale.flip.dom)
 					.animate(styl.ini, 'slow');
-				
 				cale.exit = function() {
 					cale.onbeforeleave();
 					cale.dom.animate(styl.end, 'slow', function() {
@@ -877,7 +953,6 @@
 						cale.dom.remove();
 					});
 				};
-				
 				cale.preload();
 			});
 			
@@ -904,11 +979,10 @@
 			
 			// external content
 			if (this.url || this.tpl) {
-				if (this.tpl)
-					this.fetch('tpl');
-				
-				if (this.url)
-					this.fetch('url');
+				this.required += !!this.url + !!this.tpl;
+				var dec = function() {this.required--;};
+				!this.tpl || this.fetch(this.tpl, dec);
+				!this.url || this.fetch(this.url, dec);
 			}
 			else {
 				this.preload();
@@ -919,6 +993,10 @@
 			return this;
 		},
 		
+		/**
+		 * Executes after leaving the page
+		 * @return void
+		 */
 		exit: function() {
 			if (this.refresh > 0 && !this.refresh_hidden)
 				this.refresh_timer = clearInterval(this.refresh_timer) || null;
@@ -1033,7 +1111,7 @@
 		this.flip = flip;
 		
 		// event
-		composite.event(this);
+		Tools.composite.event(this);
 		
 		// shortcut
 		flip.navigation = this;
@@ -1070,12 +1148,15 @@
 			this.dom.empty();
 			for (var pages=this.flip.pages, list=$(document.createElement('ol')).appendTo(this.dom), i=0; i < pages.length; i++)
 				if (typeof pages[i].navigation == 'undefined' || pages[i].navigation)
-					this.items[pages[i].id] = $(document.createElement('li')).appendTo(list).on('click', {i: i}, function(event) {
-						pages[event.data.i].flip.navigation.update(pages[event.data.i]);
-					});
+					this.items[pages[i].id] = $(document.createElement('li'))
+						.html(pages[i].navigation_label ? '<a><b>'+ pages[i].navigation_label +'</b></a>' : '')
+						.appendTo(list).on('click', {i: i}, function(event) {
+							pages[event.data.i].flip.navigation.update(pages[event.data.i]);
+						});
 		},
 		
 		init: function() {
+			// creates the structure
 			this.mount();
 			
 			// updates the navigation on page add or remove
@@ -1083,7 +1164,7 @@
 				this.navigation.mount();
 			});
 			
-			// on flip updates the navigation
+			// updates the active item on flip
 			this.flip.on('flip', function() {
 				this.navigation.update();
 			});
@@ -1095,12 +1176,117 @@
 	 */
 	Page.components = {};
 	
-	function composite(target, source) {
-		composite.event(target, source);
-		composite.components(target, source);
-	}
+	/**
+	 * General tools
+	 */
+	var Tools = {
+		/**
+		 * Fix properties type and value
+		 * @class static
+		 */
+		attr: {
+			index: 'bool',
+			start: 'bool',
+			cache: 'bool',
+			load: 'bool',
+			onload: 'fn',
+			load_prev: 'bool',
+			load_next: 'bool',
+			slide_duration: 'time',
+			onenter: 'fn',
+			onleave: 'fn',
+			onbeforeenter: 'fn',
+			onbeforeleave: 'fn',
+			refresh: 'time',
+			refresh_hidden: 'bool',
+			onrefresh: 'fn',
+			
+			map: function(obj, prop, value) {
+				switch (this[prop]) {
+					case 'bool':
+						value = value == 'true' || value == '1';
+						break;
+					
+					case 'time':
+						value = {slow: 600, normal: 400, fast: 200}[value] || parseInt(value);
+						break;
+					
+					case 'fn':
+						var x = value;
+						value = function() {
+							window[x].apply(this, arguments);
+						};
+						break;
+					
+					default:
+						if (value == 'true' || value == 'false')
+							value = value == 'true';
+						break;
+				}
+				
+				obj[prop] = value;
+			}
+		},
+		
+		/**
+		 * Timer
+		 * @param string name Control name
+		 * @param function func Callback function
+		 * @param int time Time in milliseconds
+		 * @param bool ever Intervaled
+		 * @param bool orid Override
+		 * @return bool
+		 */
+		time: function(name, func, time, ever, orid) {
+			// prevents execute the function before the timeout
+			if (typeof this.time[name] != 'undefined' && this.time[name] && !ever && !orid)
+				return false;
+			var ctrl = ever ? 'Interval' : 'Timeout';
+			if (typeof this.time[name] !== 'undefined')
+				this.time[name] = window['clear' + ctrl](this.time[name]);
+			if (!time)
+				return func();
+			this.time[name] = window['set' + ctrl](function() {
+				func();
+				Tools.time[name] = false;
+				try {
+					delete Tools.time[name];
+				}
+				catch (e) {}
+			}, time);
+			return true;
+		},
+		
+		/**
+		 * Render function
+		 * @param string template Template
+		 * @param object data Data
+		 * @return string
+		 */
+		render: function(template, data) {
+			if (typeof Mustache !== 'undefined')
+				return Mustache.to_html(template, data);
+			else if (typeof Handlebars != 'undefined')
+				return Handlebars.compile(template)(data);
+			return template;
+		},
+		
+		/**
+		 * Object composition
+		 * @param object target Object target
+		 * @param object source Source
+		 * @return void
+		 */
+		composite: function(target, source) {
+			Tools.composite.event(target, source);
+			Tools.composite.components(target, source);
+		}
+	};
 	
-	composite.event = function(target) {
+	/**
+	 * Events composition
+	 */
+	Tools.composite.event = function(target) {
 		target.event = {};
 		
 		target.on = function(event, callback) {
@@ -1149,7 +1335,10 @@
 		};
 	};
 	
-	composite.components = function(target, source) {
+	/**
+	 * Components composition
+	 */
+	Tools.composite.components = function(target, source) {
 		target.components = {};
 		
 		// enable components
@@ -1159,72 +1348,16 @@
 		target.one('init', function() {
 			// initialize each component
 			for (var component in this.components)
-				target.components[component].init();
+				if (typeof target.components[component].init == 'function')
+					target.components[component].init();
 		});
-	};
-	
-	/**
-	 * Fix properties type and value
-	 * @class static
-	 */
-	var attr = {
-		index: 'bool',
-		start: 'bool',
-		cache: 'bool',
-		load: 'bool',
-		onload: 'fn',
-		load_prev: 'bool',
-		load_next: 'bool',
-		slide_duration: 'time',
-		onenter: 'fn',
-		onleave: 'fn',
-		onbeforeenter: 'fn',
-		onbeforeleave: 'fn',
-		refresh: 'time',
-		refresh_hidden: 'bool',
-		onrefresh: 'fn',
-		
-		map: function(obj, prop, value) {
-			switch (this[prop]) {
-				case 'bool':
-					value = value == 'true' || value == '1';
-					break;
-				
-				case 'time':
-					value = {slow: 600, normal: 400, fast: 200}[value] || parseInt(value);
-					break;
-				
-				case 'fn':
-					var x = value;
-					value = function() {
-						window[x].apply(this, arguments);
-					};
-					break;
-				
-				default:
-					break;
-			}
-			
-			obj[prop] = value;
-		}
 	};
 	
 	// public interface
 	flip.name = 'flip.js';
-	flip.version = '0.1';
+	flip.version = '0.2';
 	flip.Pages = Flip;
 	flip.Page = Page;
 	flip.require = require;
-	
-	/**
-	 * Render function
-	 * @var object
-	 */
-	flip.render = function(template, data) {
-		if (typeof Mustache !== 'undefined')
-			return Mustache.to_html(template, data);
-		else if (typeof Handlebars != 'undefined')
-			return Handlebars.compile(template)(data);
-		return template;
-	};
+	flip.tools = Tools;
 });
