@@ -1129,7 +1129,7 @@
 		
 		current: null,
 		
-		update: function(page) {console.log('flip update')
+		update: function(page) {
 			page = typeof page == 'undefined' ? this.flip.page : this.flip.get(page);
 			
 			if (!page || this.flip.locked || typeof this.items[page.id] == 'undefined' || this.current == this.items[page.id])
