@@ -1,6 +1,10 @@
 /**
  * Flip
  *
+ * Content load and process by demand.
+ * Mustache and handlebars ready.
+ * Extensible.
+ *
  * @author Alejandro Moraga <moraga86@gmail.com>
  */
 (function(root, factory) {
@@ -334,7 +338,7 @@
 			}
 			else {
 				move[0] = $('html,body');
-				move[1] = {scrollTop: this.page.dom.offset().top - this.dom.parent().offset().top};
+				move[1] = {scrollTop: this.page.dom.offset().top - this.dom.offset().top};
 			}
 			
 			Function.call.apply(move[0].animate, move);
@@ -473,6 +477,7 @@
 						self.width = self.dom.width();
 						self.height = $(document).height();
 					},
+					// automatically triggered by browser
 					scroll: function(event, move) {
 						for (var m=window.pageYOffset + (document.documentElement || document).clientHeight / 2, i=self.pages.length, page; i--;)
 							if (m >= (page = self.pages[i]).dom.offset().top)
@@ -485,8 +490,7 @@
 						self.goto(page, true, move === true);
 					}
 				})
-				.resize()
-				.trigger('scroll', [true]);
+				.resize();
 			}
 			
 			this.trigger('init');
@@ -1125,7 +1129,7 @@
 		
 		current: null,
 		
-		update: function(page) {
+		update: function(page) {console.log('flip update')
 			page = typeof page == 'undefined' ? this.flip.page : this.flip.get(page);
 			
 			if (!page || this.flip.locked || typeof this.items[page.id] == 'undefined' || this.current == this.items[page.id])
