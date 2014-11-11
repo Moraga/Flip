@@ -1,0 +1,140 @@
+@charset "utf-8";
+
+/**
+ * Geral
+ */
+
+html, body {margin:0; padding:0; position:relative;}
+
+a {cursor:pointer; -webkit-transition-duration:.25s; transition-duration:.25s;}
+a:hover {filter:alpha(opacity=65); opacity:.65;}
+
+.wrap {position:relative;}
+
+/**
+ * Header
+ */
+
+.navbar {background:#000; border-radius:0; color:#fff; position:fixed; top:0; left:0; width:100%; height:50px; z-index:100;}
+.navbar-brand {display:block; float:left; line-height:50px; vertical-align:top;}
+.navbar-brand a {color:#fff; display:block; float:left; font-size:26px; padding-left:15px; text-decoration:none;}
+.navbar-brand .icon {height:50px; overflow:hidden;}
+.navbar-brand .icon:before {content:'Ç'; font:54px 'UOLIcons'; position:relative; top:-4px;}
+.navbar-header {float:left; position:relative; z-index:1;}
+.navbar-right {float:right; position:relative; z-index:1;}
+.navbar-center {font-size:26px; line-height:50px; margin-left:-240px; position:absolute; top:0; left:50%; width:480px; text-align:center;}
+.navbar-center a {color:#fff; text-decoration:none;}
+
+/**
+ * Menu and submenu
+ */
+
+.menu {float:left;}
+.menu .icon {border-right:1px solid #3a3b3d; display:block;}
+.menu .icon:before {content:'È'; font:24px UOLIcons; line-height:50px; padding:0 15px;}
+.menu ul {background:#f3f2f1; border-right:1px solid #d3dde9; display:none; font-size:15px; list-style:none; margin:0; padding:0; position:fixed; top:50px; left:0; width:200px; height:100%; height:-webkit-calc(100% - 50px); height:calc(100% - 50px);}
+.menu li {margin:0; padding:0;}
+.menu li a {border-bottom:1px solid #d3dde9; color:#000; display:block; padding:13px 17px; text-decoration:none;}
+.menu li a:hover {background:#1668b5; color:#fff; margin-right:-1px;}
+.menu:hover ul, .menu.active ul {display:block;}
+
+.submenu.v {font-size:18px; margin-left:-110px; padding:10px 0; position:absolute; top:-200px; left:50%; width:220px; z-index:2;}
+.submenu.v ul {background:#000; list-style:none; margin:0; padding:14px 0; position:relative;}
+.submenu.v ul:before {content:'('; color:#000; font-family:UOLIcons; position:absolute; top:-14px; text-align:center; width:100%;}
+.submenu.v a {color:#fff; display:block; margin:0 2px; padding:7px 20px; text-decoration:none;}
+.submenu.v a:hover {background:#fff; color:#555; filter:alpha(opacity=100); opacity:1;}
+
+.submenu.h {font-size:19px; margin-left:0; padding:0; position:fixed; top:50px; left:0; width:100%; z-index:2;}
+.submenu.h ul {background:#fff; margin:0; padding:0; white-space:nowrap;}
+.submenu.h ul:before {display:none;}
+.submenu.h li {display:inline-block; margin:0; padding:0;}
+.submenu.h li:first-child a {padding-left:19px; margin-left:-1px;}
+.submenu.h li:first-child a:before {display:none;}
+.submenu.h a {color:#000; display:block; padding:15px 29px 11px; position:relative; text-decoration:none;}
+.submenu.h a:before {background:#bdbec2; content:""; position:absolute; left:0; top:18px; width:1px; height:19px;}
+.submenu.h span {display:none;}
+.submenu.h .on {display:inline-block;}
+.submenu.h .on a, .submenu.h a:hover {border-bottom:2px solid #000; margin-bottom:-1px;}
+
+/**
+ * Share
+ */
+
+.share {font:22px 'UOLIcons'; line-height:1;}
+.share a {border-left:1px solid #3a3b3d; color:#fff; cursor:pointer; display:block; float:left; margin:0; padding:16px 15px 12px;}
+.share a:hover {filter:alpha(opacity=100); opacity:1;}
+.share .facebook:before {content:'m';}
+.share .twitter:before {content:'n';}
+
+/**
+ * Form
+ */
+
+.buttons ul, .checkbox ul, .radio ul, .select ul {list-style:none; margin:0; padding:0;}
+.buttons li, .checkbox li, .radio li, .select li {cursor:pointer; margin:0; padding:0;}
+
+.buttons {line-height:79px;}
+.buttons li {border-right:1px solid #D3DDE9; float:left; min-width:160px; position:relative; text-align:center;}
+.buttons li:hover {opacity:.8;}
+.buttons li.active:after {background:#000; content:''; position:absolute; bottom:0; left:0; width:100%; height:2px;}
+
+.checkbox, .radio {display:inline-block; position:relative;}
+.checkbox ul, .radio ul {display:inline-block;}
+.checkbox li, .radio li {display:inline-block; margin:0 0 10px 20px; padding-left:23px; position:relative;}
+.checkbox li:before, .radio li:before {border:1px solid #989898; border-radius:50%; content:''; position:absolute; top:-2px; left:0; width:16px; height:16px;}
+.checkbox li.active:before, .radio li.active:before {background:#2f2f2f; border-color:#2f2f2f; content:','; color:#fff; font:10px UOLIcons; line-height:16px; text-align:center;}
+.checkbox:before, .radio:before {content:attr(data-label); display:inline-block; margin:0 0 10px 15px;}
+
+.select {display:inline-block; position:relative; text-transform:uppercase;}
+.select > *:first-child {background:#000; color:#fff; display:none; min-width:180px; padding:10px 3px; position:absolute; top:100%; z-index:100;}
+.select.open:hover > * {display:block;}
+.select ul {list-style:none; margin:0; padding:0;}
+.select li {padding:2px 5px;}
+.select li:hover, .select li.active {background:#fff; color:#555;}
+.select:before {content:attr(data-value); font-size:26px; font-weight:bold;}
+.select:after {content:'&'; font:18px UOLIcons; margin-left:5px;}
+.select.open:hover:after {content:'$';}
+
+.select.plus {border-left:1px solid #d3dde9; margin-top:0; min-width:160px; text-align:center;}
+.select.plus:before {font-size:16px; font-weight:bold; line-height:79px;}
+.select.plus:after {font-size:16px; margin-right:-21px; position:relative; top:2px;}
+.select.plus ul {background:#000; color:#fff; font-size:18px; padding:10px 0;}
+.select.plus ul:before {content:'('; color:#000; font:19px UOLIcons; position:absolute; top:-15px; left:0; text-align:center; width:100%;}
+.select.plus li {border:solid #000; border-width:0 2px; padding-top:5px; padding-bottom:5px;}
+.select.plus li:hover {background:#fff; color:#555;}
+
+/**
+ * Flip navigation
+ */
+
+.flip-navigation {background:#51555b; display:table; margin:0; padding:0; position:fixed; top:50px; left:0; width:30px; height:-webkit-calc(100% - 50px); height:calc(100% - 50px); z-index:1;}
+.flip-navigation ol {display:table-cell; margin:0; padding:0; vertical-align:middle;}
+.flip-navigation li {background:#fff; border-radius:50%; cursor:pointer; margin:10px auto; padding:0; position:relative; width:10px; height:10px;}
+.flip-navigation li.active,
+.flip-navigation li:hover {background:none; border:1px solid #fff; width:8px; height:8px;}
+.flip-navigation a {color:#fff; display:none; line-height:40px; margin-top:-20px; padding-left:19px; position:absolute; top:50%; left:0; text-decoration:none; white-space:nowrap;}
+.flip-navigation li:hover a {display:block; filter:alpha(opacity=100); opacity:1;}
+.flip-navigation b {background:#1d1e22; display:block; padding:0 10px;}
+.flip-navigation + .flip > div {padding-left:30px; width:-webkit-calc(100% - 30px); width:calc(100% - 30px);}
+
+/**
+ * Flip content
+ */
+
+.flip > div {overflow:hidden; position:relative;}
+
+/**
+ * Flip web
+ */
+
+.flip-web, .flip-web body {height:100%;}
+.flip-web .wrap {height:-webkit-calc(100% - 50px); height:calc(100% - 50px); overflow:hidden; top:50px;}
+.flip-web .flip {position:absolute; left:0; width:100%; height:100%;}
+.flip-web .flip > div {height:100%;}
+
+/**
+ * Flip mobile
+ */
+
+.flip-mobile .wrap {padding-top:50px;}
+.flip-mobile .flip > div {min-height:500px;}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html class="flip-mobile">
+<head>
+<meta charset="utf-8"/>
+<title>Flip</title>
+<link href="//jsuol.com/c/_template/v1/_geral/css/estrutura/webfonts.css" rel="stylesheet"/>
+<link href="uol.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="navbar">
+	<div class="navbar-header">
+		<div class="menu">
+			<a class="icon"></a>
+			<ul>
+				<li><a href="#">Menu item 1</a></li>
+				<li><a href="#">Menu item 2</a></li>
+				<li><a href="#">Menu item 3</a></li>
+				<li><a href="#">Menu item 4</a></li>
+				<li><a href="#">Menu item 5</a></li>
+			</ul>
+		</div>
+		<div class="navbar-brand">
+			<a class="icon"></a>
+			<a href="#">Title</a>
+		</div>
+	</div>
+	<div class="navbar-right">
+		<div class="share">
+			<a class="facebook"></a>
+			<a class="twitter"></a>
+		</div>
+	</div>
+	<div class="navbar-center">
+		<a href="">Subtitle</a>
+	</div>
+</div>
+<div class="submenu v">
+	<ul>
+		<li><a href="#">Submenu item 1</a></li>
+		<li><a href="#">Submenu item 1</a></li>
+		<li><a href="#">Submenu item 1</a></li>
+		<li><a href="#">Submenu item 1</a></li>
+		<li><a href="#">Submenu item 1</a></li>
+	</ul>
+</div>
+<div class="wrap">
+	<div class="flip">
+		<div data-navigation-label="First">
+			<header></header>
+			<aside></aside>
+			<div class="radio" data-label="Choose an option" data-value="1">
+				Item A (1), Item B (2), Item C (3)
+			</div>
+		</div>
+		<div data-navigation-label="Second">
+			Second page
+		</div>
+		<div data-navigation-label="Third">
+			Third page
+		</div>
+		<div data-url="logic1.js" data-tpl="tpl.html"></div>
+	</div>
+</div>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="flip.js"></script>
+<script src="uol.js"></script>
+<script>
+
+var flip = new Flip.Pages('.flip').init();
+
+</script>
+
+</body>
+</html>

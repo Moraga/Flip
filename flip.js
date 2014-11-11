@@ -130,6 +130,7 @@
 		construct: function(settings) {
 			switch (typeof settings) {
 				case 'string':
+					this.dom = settings;
 					break;
 				
 				case 'object':
