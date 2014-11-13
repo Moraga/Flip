@@ -11,6 +11,9 @@ a:hover {filter:alpha(opacity=65); opacity:.65;}
 
 .wrap {position:relative;}
 
+.lft {float:left;}
+.rgt {float:right;}
+
 /**
  * Header
  */
@@ -123,6 +126,23 @@ a:hover {filter:alpha(opacity=65); opacity:.65;}
 
 .flip > div {overflow:hidden; position:relative;}
 
+.rx header {border-bottom:1px solid #d3dde9; padding:0 20px; height:79px;}
+.rx header h2 {display:inline-block; vertical-align:top;}
+.rx header .radio {margin-top:25px;}
+
+.rx article {background:#eff0f4; box-sizing:border-box; padding:25px 20px 10px; height:100%;}
+.rx article h1 {color:#1c1e21; font-size:25px; margin:0 0 15px;}
+.rx article h1 + p {color:#676d75; font-size:16px; margin-bottom:7%;}
+
+.rx aside h2 {text-align:center;}
+.rx aside h2 small {display:block; font-size:16px; font-weight:normal;}
+
+.rx header + article,
+.rx header + aside + article {height:calc(100% - 80px);}
+
+.rx header + aside {padding:0 15px; position:absolute; top:80px; bottom:0; right:0; width:205px;}
+.rx aside + article {border-right:1px solid #d3dde9; margin-right:235px;}
+
 /**
  * Flip web
  */
@@ -138,3 +158,7 @@ a:hover {filter:alpha(opacity=65); opacity:.65;}
 
 .flip-mobile .wrap {padding-top:50px;}
 .flip-mobile .flip > div {min-height:500px;}
+
+@media (max-width:800px) {
+	.navbar-center {display:none;}
+}

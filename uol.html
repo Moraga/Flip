@@ -45,23 +45,45 @@
 </div>
 <div class="wrap">
 	<div class="flip">
-		<div data-navigation-label="First">
-			<header></header>
-			<aside></aside>
-			<div class="radio" data-label="Choose an option" data-value="1">
-				Item A (1), Item B (2), Item C (3)
-			</div>
+		<div class="rx" data-navigation-label="First">
+			<header>
+				<h2>Subtitle</h2>
+				<div class="radio rgt" data-label="Choose an option" data-value="1">
+					Item A (1), Item B (2), Item C (3)
+				</div>
+			</header>
+			<aside>
+				<h2>
+					<small>Auxiliar content</small>
+					Aside title
+				</h2>
+			</aside>
+			<article>
+				<h1>Title</h1>
+				<p>Some description (using class rx)</p>
+				<p>Features:</p>
+				<ul>
+					<li>Content loaded and processed by demand.</li>
+					<li>Template and data separated.</li>
+					<li>Mustache and Handlebars ready.</li>
+					<li>Supports Requirejs.</li>
+					<li>Easy infinite scroll.</li>
+				</ul>
+				<p>Original:</p>
+				<ul>
+					<li><a href="http://eleicoes.uol.com.br/2014/raio-x/presidente" target="_blank">eleicoes.uol.com.br/2014/raio-x/presidente</a></li>
+				</ul>
+			</article>
 		</div>
 		<div data-navigation-label="Second">
 			Second page
 		</div>
-		<div data-navigation-label="Third">
-			Third page
+		<div data-url="scr.js" data-tpl="tpl.htm" data-navigation-label="Third"></div>
+		<div data-navigation-label="Fourth">
+			Fourth page
 		</div>
-		<div data-url="logic1.js" data-tpl="tpl.html"></div>
 	</div>
 </div>
-
 <script src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="flip.js"></script>
