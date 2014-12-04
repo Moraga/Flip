@@ -480,7 +480,7 @@
 					},
 					// automatically triggered by browser
 					scroll: function(event, move) {
-						for (var m=window.pageYOffset + (document.documentElement || document).clientHeight / 2, i=self.pages.length, page; i--;)
+						for (var m=window.pageYOffset + (window.innerHeight || (document.documentElement || document).clientHeight) / 2, i=self.pages.length, page; i--;)
 							if (m >= (page = self.pages[i]).dom.offset().top)
 								break;
 						
