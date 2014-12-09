@@ -736,19 +736,6 @@
 		current: 0,
 		
 		/**
-		 * Go to a page step
-		 * @param number n A page step
-		 * @param number walk
-		 * @return bool TRUE on success, FALSE on failure
-		 */
-		step: function(n, walk) {
-			if (walk)
-				n = this.current + walk;
-			return n > -1 && n < this.steps &&
-				this.dom.children().first().animate({marginTop: (this.current = n) * this.flip.height * -1});
-		},
-		
-		/**
 		 * Flip instance
 		 * @var Flip
 		 */
@@ -879,8 +866,22 @@
 				self.exit();
 			});
 			
+			// page step
 			this.steps = this.dom.find('.step').css('height', this.flip.height).length;
 		},		
+		
+		/**
+		 * Go to a page step
+		 * @param number n A page step
+		 * @param number walk
+		 * @return bool TRUE on success, FALSE on failure
+		 */
+		step: function(n, walk) {
+			if (walk)
+				n = this.current + walk;
+			return n > -1 && n < this.steps &&
+				this.dom.children().first().animate({marginTop: (this.current = n) * this.flip.height * -1});
+		},
 		
 		/**
 		 * Clones the page
