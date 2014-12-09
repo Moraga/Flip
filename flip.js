@@ -456,7 +456,7 @@
 						move(function() {
 							var	key = self.keys[event.which || event.keyCode] || null;
 							if (key && ('|' + self.page.slide_trigger + '|').indexOf(key[0]) > -1)
-								self[key[1]]();
+								self[key[1]](false, 'user');
 						});
 					},
 					
@@ -475,7 +475,7 @@
 							if (Math.abs(touch.end - touch.start) < 10)
 								return;
 							
-							self[touch.start > touch.end ? 'prev' : 'next']('user');
+							self[touch.start > touch.end ? 'prev' : 'next'](false, 'user');
 						});
 					},
 					
