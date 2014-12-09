@@ -114,6 +114,12 @@
 		delay: 700,
 		
 		/**
+		 * Flip counter
+		 * @var number
+		 */
+		flip: 0,
+		
+		/**
 		 * Container
 		 * @var jQuery
 		 */
@@ -308,9 +314,10 @@
 					return false;
 			}
 			
-			// updates the references
+			// update references
 			this.page = next;
 			this.current = n;
+			this.flip++;
 			
 			// initialize the next page
 			next.init();
