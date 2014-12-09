@@ -1,9 +1,11 @@
 /**
  * Flip
  *
- * Content load and process by demand.
- * Mustache and handlebars ready.
- * Extensible.
+ * Content loaded and processed by demand
+ * Template and data separated
+ * Mustache and Handlebars ready
+ * Easy to infinity scroll
+ * Extensible
  *
  * @author Alejandro Moraga <moraga86@gmail.com>
  */
@@ -189,18 +191,22 @@
 		
 		/**
 		 * Go to previous page
-		 * @return boolean TRUE on success, FALSE on failure
+		 * @param bool direct
+		 * @param string origin
+		 * @return bool TRUE on success, FALSE on failure
 		 */
-		prev: function() {
-			return this.goto(this.current - 1);
+		prev: function(direct, origin) {
+			return this.goto(this.current - 1, direct, origin);
 		},
 		
 		/**
 		 * Go to previous page
+		 * @param bool direct
+		 * @param string origin
 		 * @return bool TRUE on success, FALSE on failure
 		 */
-		next: function() {
-			return this.goto(this.current + 1);
+		next: function(direct, origin) {
+			return this.goto(this.current + 1, direct, origin);
 		},
 		
 		/**
@@ -276,10 +282,11 @@
 		/**
 		 * Go to a indexed page
 		 * @param number|Page n Index or page
-		 * @param bool direct 
+		 * @param bool direct
+		 * @param string origin 
 		 * @return bool TRUE on sucess, FALSE on failure
 		 */
-		goto: function(n, direct) {
+		goto: function(n, direct, origin) {
 			// gets the index from the object
 			if (typeof n == 'object')
 				n = n.position();
@@ -293,6 +300,8 @@
 			
 			// dispatch out events from previous page
 			if (prev) {
+				if (prev.steps && origin == 'user' && prev.step(null, n > prev.position() ? 1 : -1))
+					return true;
 				prev.exit();
 				prev.trigger('beforeleave');
 				if (this.locked)
@@ -407,11 +416,11 @@
 							typeof event.originalEvent.wheelDelta != 'undefined' && event.originalEvent.wheelDelta >= 0 ||
 							// firefox
 							typeof event.originalEvent.detail != 'undefined' && event.originalEvent.detail < 0) {
-							self.prev();
+							self.prev(false, 'user');
 						}
 						// down
 						else {
-							self.next();
+							self.next(false, 'user');
 						}
 					});
 				}
@@ -459,7 +468,7 @@
 							if (Math.abs(touch.end - touch.start) < 10)
 								return;
 							
-							self[touch.start > touch.end ? 'prev' : 'next']();
+							self[touch.start > touch.end ? 'prev' : 'next']('user');
 						});
 					},
 					
@@ -715,6 +724,31 @@
 		dom: null,
 		
 		/**
+		 * Total page steps
+		 * @var number
+		 */
+		steps: 0,
+		
+		/**
+		 * Current page step
+		 * @var number
+		 */
+		current: 0,
+		
+		/**
+		 * Go to a page step
+		 * @param number n A page step
+		 * @param number walk
+		 * @return bool TRUE on success, FALSE on failure
+		 */
+		step: function(n, walk) {
+			if (walk)
+				n = this.current + walk;
+			return n > -1 && n < this.steps &&
+				this.dom.children().first().animate({marginTop: (this.current = n) * this.flip.height * -1});
+		},
+		
+		/**
 		 * Flip instance
 		 * @var Flip
 		 */
@@ -750,18 +784,22 @@
 		
 		/**
 		 * Go to the previous page
+		 * @param bool direct
+		 * @param string origin
 		 * @return bool TRUE on success, FALSE on failure
 		 */
-		prev: function() {
-			return this.flip.goto(this.position() - 1);
+		prev: function(direct, origin) {
+			return this.flip.goto(this.position() - 1, direct, origin);
 		},
 		
 		/**
 		 * Go to the next page
-		 * @return bool
+		 * @param bool direct
+		 * @param string origin
+		 * @return bool TRUE on success, FALSE on failure
 		 */
-		next: function() {
-			return this.flip.goto(this.position() + 1);
+		next: function(direct, origin) {
+			return this.flip.goto(this.position() + 1, direct, origin);
 		},
 		
 		/**
@@ -840,6 +878,8 @@
 			$('[data-exit]', this.dom).on('click.exit', function() {
 				self.exit();
 			});
+			
+			this.steps = this.dom.find('.step').css('height', this.flip.height).length;
 		},		
 		
 		/**
