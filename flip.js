@@ -290,9 +290,10 @@
 		 * @param number|Page n Index or page
 		 * @param bool direct
 		 * @param string origin 
+		 * @param bool move
 		 * @return bool TRUE on sucess, FALSE on failure
 		 */
-		goto: function(n, direct, origin) {
+		goto: function(n, direct, origin, move) {
 			// gets the index from the object
 			if (typeof n == 'object')
 				n = n.position();
@@ -302,7 +303,15 @@
 				return false;
 			
 			var prev = this.page,
-				next = this.pages[n];
+				next = this.pages[n],
+				refs = function() {
+					// global page reference
+					window.page = next;
+					next.flip.trigger('flip', [next, prev]);
+					if (prev)
+						prev.trigger('leave');
+					next.trigger('enter');
+				};
 			
 			// dispatch out events from previous page
 			if (prev) {
@@ -335,18 +344,14 @@
 			// marks the page
 			this.mark();
 			
-			var move = [
+			if (move === false)
+				return refs() || true;
+			
+			move = [
 				null, // dom element
 				null, // anim properties
 				direct ? 0 : next.slide_duration,
-				function() {
-					// global page reference
-					window.page = next;
-					next.flip.trigger('flip', [next, prev]);
-					if (prev)
-						prev.trigger('leave');
-					next.trigger('enter');
-				}
+				refs
 			];
 			
 			if (this.singly) {
@@ -504,7 +509,7 @@
 						if (page == self.page)
 							return;
 						
-						self.goto(page, true, move === true);
+						self.goto(page, false, '', move === true);
 					}
 				})
 				.resize();
